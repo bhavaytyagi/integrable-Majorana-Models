@@ -1,7 +1,7 @@
 # Integrable Majorana Models
 
-Exact computer-algebra verification for the paper **"A Search for a Hamiltonian's
-Family"** (BT, NS).
+Exact computer-algebra verification for the paper **"Integrable Majorana Hub
+Hamiltonians"** (BT, NS).
 
 The paper constructs a family of `N` mutually commuting, explicitly
 time-dependent Hamiltonians, affine in `N` times,
@@ -70,21 +70,35 @@ Every script exits nonzero on failure, with one deliberate exception noted below
 
 ## Which script establishes which claim
 
-| Claim in the paper | Verified by |
-|---|---|
-| The four-line statement of the family (the `B_{mu nu}`, `B_{2 nu}`, `O_mu` table), including the coefficient extraction from the kernel `(E(z)E(w) - prod_j(1+beta_j^2 zw))/(z+w)` | `paper_checks/check_paper_consistency.py` |
-| Rewriting as `N` standard fermions coupled to one Majorana; the Jordan–Wigner spin representation (with exact `2^N` Pauli matrices) | `paper_checks/check_paper_consistency.py` |
-| The local commutator identities among `A_j`, `V_j`, `D_0`, `D_j`, and the fermionization rule `M -> i c_0 M` | `paper_checks/check_paper_consistency.py` |
-| The explicit `N=3` and `N=4` members, the `N=3` operator table, and the generating potential `Phi_3` | `paper_checks/check_paper_consistency.py` |
-| Generating function for `B_{mu nu}`; the factorization `P(z+w, zw) = E(z)E(w)`; the row and constant-column series over their full extended index ranges | `paper_checks/check_paper_consistency.py`, `paper_checks/duality_and_gf_test.py` |
-| Linearization of `e_a(A) e_b(A)` in `C[A]/(A_j^2 - beta_j^2)`; the three-term recursion; the kernel identity; the reflection identity `E(z)E(-z) = prod_j(1 - beta_j^2 z^2)`; the Krawtchouk evaluation | `paper_checks/check_paper_consistency.py` |
-| All integrability conditions for the stored `N=3,4,5` families, and the projection of the closed form onto them | `algebra_checks/commutator_tests.py`, `HamFam_Resources/python/verify_n{3,4,5}_majorana.py` |
-| Existence of the `(N+1)`-st commuting flow: `(N, flows) = (2,3), (3,4), (4,5)` all pass | `paper_checks/extension_test.py` |
-| Termination of the hierarchy: at `(2,4)` and `(3,5)`, row `N+2` reduces to the single entry `B_{N+2,2} = (-1)^N X` and row `N+3` vanishes identically | `paper_checks/extension_test.py` |
-| `X = A_1...A_N D_0` is central with `X^2 = prod_j beta_j^2`; the column-by-column parity duality `B_{N+1,nu} = (-1)^{N-1} X B_{2 nu}` for `N=2,3,4` | `paper_checks/duality_and_gf_test.py`, `paper_checks/check_paper_consistency.py` |
-| The chirality identity `X = kappa_N (prod_j beta_j) Gamma` with `kappa_N = 1` for odd `N` and `i` for even `N`, and `Gamma^2 = (-1)^{N+1}` (measured directly for `N = 1..6`) | `paper_checks/check_paper_consistency.py` |
-| Uniqueness evidence: the structured linear solves are full rank with zero nullity and no inconsistency (`N=3`: rank 13/13; `N=4` fourth flow: rank 448/448; `N=5`: rank 10/10) | `algebra_checks/uniqueness_checks.py`, `HamFam_Resources/python/solve_n{3,4,5}_*.py` |
-| The Gaudin comparison: gradient condition, commutativity via the three-point partial-fraction identity, and the logarithmic potential | `paper_checks/check_paper_consistency.py` |
+Section and equation numbers below refer to the current draft, in which the
+derivations were moved out of the body: the main text carries the statements
+(§§1–9) and the proofs, the generating-function construction and the explicit
+`N=4,5` members live in Appendices C–F.
+
+| Claim in the paper | Where | Verified by |
+|---|---|---|
+| The four-line statement of the family (the `B_{mu nu}`, `B_{2 nu}`, `O_mu` table), including the coefficient extraction from the kernel `(E(z)E(w) - prod_j(1+beta_j^2 zw))/(z+w)` | §2.2, Eqs. (2.6)–(2.10) | `paper_checks/check_paper_consistency.py` |
+| Rewriting as `N` standard fermions coupled to one Majorana; the Jordan–Wigner spin representation (with exact `2^N` Pauli matrices) | §2.3–§2.4, Eqs. (2.11)–(2.18) | `paper_checks/check_paper_consistency.py` |
+| The local commutator identities among `A_j`, `V_j`, `D_0`, `D_j`, and the fermionization rule `M -> i c_0 M` | §4, Eqs. (4.8)–(4.13) | `paper_checks/check_paper_consistency.py` |
+| The explicit `N=3` members, the `N=3` operator table, and the generating potential `Phi_3` | §4.1, Eqs. (4.14)–(4.17), Table 2 | `paper_checks/check_paper_consistency.py` |
+| The explicit `N=4` members against the closed-form table | Appendix C | `paper_checks/check_paper_consistency.py` |
+| Generating function for `B_{mu nu}`; the factorization `P(z+w, zw) = E(z)E(w)`; the row and constant-column series over their full extended index ranges | Appendix D, Eqs. (D.1)–(D.9) | `paper_checks/check_paper_consistency.py`, `paper_checks/duality_and_gf_test.py` |
+| Linearization of `e_a(A) e_b(A)` in `C[A]/(A_j^2 - beta_j^2)`; the three-term recursion; the reflection identity `E(z)E(-z) = prod_j(1 - beta_j^2 z^2)` | §5, Prop. 5.1, Eqs. (5.5)–(5.8) | `paper_checks/check_paper_consistency.py` |
+| The kernel identity `(z+w) sum K z^a w^b = E(z)E(w) - prod_j(1+beta_j^2 zw)` | Appendix E, Eq. (E.1) | `paper_checks/check_paper_consistency.py` |
+| All integrability conditions for the stored `N=3,4,5` families, and the projection of the closed form onto them | §3, Eqs. (3.12)–(3.15) | `algebra_checks/commutator_tests.py`, `HamFam_Resources/python/verify_n{3,4,5}_majorana.py` |
+| Existence of the `(N+1)`-st commuting flow: `(N, flows) = (2,3), (3,4), (4,5)` all pass | §6.1, Thm. 6.1, Eq. (6.1) | `paper_checks/extension_test.py` |
+| Termination of the hierarchy: at `(2,4)` and `(3,5)`, row `N+2` reduces to the single entry `B_{N+2,2} = (-1)^N X` and row `N+3` vanishes identically | §6.3, Thm. 6.6 | `paper_checks/extension_test.py` |
+| `X = A_1...A_N D_0` is central with `X^2 = prod_j beta_j^2`; the column-by-column parity duality `B_{N+1,nu} = (-1)^{N-1} X B_{2 nu}` for `N=2,3,4` | §6.2, Thm. 6.3, Eqs. (6.3)–(6.5) | `paper_checks/duality_and_gf_test.py`, `paper_checks/check_paper_consistency.py` |
+| The chirality identity `X = kappa_N (prod_j beta_j) Gamma` with `kappa_N = 1` for odd `N` and `i` for even `N`, and `Gamma^2 = (-1)^{N+1}` (measured directly for `N = 1..6`) | Appendix F, Eqs. (F.1)–(F.2) | `paper_checks/check_paper_consistency.py` |
+| The worked `N=2` extended hierarchy and its column-by-column duality | Appendix F.1, Eqs. (F.3)–(F.4) | `paper_checks/check_paper_consistency.py` |
+| Uniqueness evidence: the structured linear solves are full rank with zero nullity and no inconsistency (`N=3`: rank 13/13; `N=4` fourth flow: rank 448/448; `N=5`: rank 10/10) | §6.4, Cor. 6.7 | `algebra_checks/uniqueness_checks.py`, `HamFam_Resources/python/solve_n{3,4,5}_*.py` |
+| The Gaudin comparison: gradient condition, commutativity via the three-point partial-fraction identity, and the logarithmic potential | §7, Eqs. (7.1)–(7.5) | `paper_checks/check_paper_consistency.py` |
+
+One check has **no counterpart in the paper**: the Krawtchouk evaluation
+`e_r|_k = beta^r K_r(k;N)`. The named-polynomial discussion was cut from the
+draft, but the check is deliberately kept because it guards the hypercube
+spectrum, Eq. (5.3). Do not remove it on the grounds that the paper no longer
+states it.
 
 ## Notes on how the checks are built
 

@@ -3,11 +3,11 @@
 
 Every displayed formula of A_Search_for_a_Hamiltonians_Family_Revised_V2.tex
 that makes an algebraic claim is transcribed here *literally, from the paper*
-and compared against the closed-form table (Table 5, Eq. (4.13)) in the exact
+and compared against the closed-form table (Table 3, Eq. (4.21)) in the exact
 Clifford algebra over Laurent polynomials in (beta_j, g_j, tau_nu).
 
 This is deliberately an INDEPENDENT transcription: the closed form is
-re-implemented from the printed Table 5 rather than imported, and then also
+re-implemented from the printed Table 3 rather than imported, and then also
 cross-checked against the verified builder in extension_test.py.  A mismatch
 means the paper and the verified algebra disagree.
 
@@ -125,16 +125,16 @@ def coeff_of(alg, expr, powers):
 
 
 # ---------------------------------------------------------------------------
-# The closed form, transcribed from printed Table 5 + Eqs. (4.10), (4.12)
+# The closed form, transcribed from printed Table 3 + Eqs. (4.20), (4.21)
 # ---------------------------------------------------------------------------
 
 def a_index(mu):
-    """Eq. (4.12): a_1 = 0, a_mu = mu - 2 for mu >= 3."""
+    """Eq. (4.20): a_1 = 0, a_mu = mu - 2 for mu >= 3."""
     return 0 if mu == 1 else mu - 2
 
 
 def K_paper(alg, N, a, b):
-    """Eq. (4.13):
+    """Eq. (4.21):
     K^{(N)}_{a,b} = sum_s C(a+b-2s, a-s) sum_{|I|=a+b+1-2s} A_I e_s({beta_k^2 : k not in I}).
     """
     out = alg.zero()
@@ -155,7 +155,7 @@ def K_paper(alg, N, a, b):
 
 
 def paper_table(N, rows, extra=()):
-    """Build the (O_mu | B_{mu nu}) table from printed Table 5 for the given row index set.
+    """Build the (O_mu | B_{mu nu}) table from printed Table 3 for the given row index set.
 
     `rows` is the index set (1, 2, 3, ..., top).  Returns (alg, matrix, tau_names)
     with matrix[mu-1][nu-1] = B_{mu,nu} and matrix[mu-1][-1] = O_mu.
@@ -174,7 +174,7 @@ def paper_table(N, rows, extra=()):
                 e = minus(e)
             M[mu - 1][nu - 1] = e
 
-    for mu in script_I:                       # Table 5, row/column 2
+    for mu in script_I:                       # Table 3, row/column 2
         a = a_index(mu)
         e = D0(alg) * e_r(alg, N, a)
         M[1][mu - 1] = M[mu - 1][1] = e if a % 2 == 0 else minus(e)
@@ -182,7 +182,7 @@ def paper_table(N, rows, extra=()):
         (A_bil(alg, N, j).scale(beta(alg, j, -2)) for j in range(1, N + 1)), alg
     )
 
-    for mu in script_I:                       # Table 5, constant column
+    for mu in script_I:                       # Table 3, constant column
         a = a_index(mu)
         e = sum_expr(
             (
@@ -209,7 +209,7 @@ def H_of(alg, M, mu, tau_names):
 # ---------------------------------------------------------------------------
 
 def check_table_vs_code():
-    section("Table 5 (paper transcription) vs the verified builder / integrability")
+    section("Table 3 (paper transcription) vs the verified builder / integrability")
     from extension_test import build_table
 
     for N, top in ((2, 2), (3, 3), (4, 4), (2, 3), (3, 4), (4, 5), (2, 4), (3, 5)):
@@ -220,21 +220,21 @@ def check_table_vs_code():
             for i in range(top)
             for j in range(top + 1)
         )
-        check(f"N={N}, {top} flows: printed Table 5 == extension_test builder", same)
+        check(f"N={N}, {top} flows: printed Table 3 == extension_test builder", same)
         if top <= N + 1:
             fails = integrability_failures(Mp, xs)
-            check(f"N={N}, {top} flows: printed Table 5 satisfies (3.9)-(3.12)", not fails,
+            check(f"N={N}, {top} flows: printed Table 3 satisfies (3.12)-(3.15)", not fails,
                   str(fails[:1]))
 
 
 def check_section2_four_lines():
-    section("Section 2.2 -- the family 'in four lines' (Eqs. (2.5)-(2.10))")
+    section("Section 2.2 -- the family 'in four lines' (Eqs. (2.6)-(2.10))")
     for N in (2, 3, 4):
         alg, M, xs = paper_table(N, range(1, N + 1), extra=("z", "w"))
         z, w = alg.var("z"), alg.var("w")
         script_I = [m for m in range(1, N + 1) if m != 2]
 
-        # Eq. (2.5): B_{mu nu} = (-1)^{a+b} [z^a w^b] (E(z)E(w) - prod(1+beta^2 zw))/(z+w).
+        # Eq. (2.6): B_{mu nu} = (-1)^{a+b} [z^a w^b] (E(z)E(w) - prod(1+beta^2 zw))/(z+w).
         # The quotient's coefficients are extracted by the recursion K_{a,b} = R_{a,b} - K_{a-1,b},
         # which is exactly polynomial division by (z+w); we verify the division is exact.
         E = lambda u: _E(alg, N, u)
@@ -256,7 +256,7 @@ def check_section2_four_lines():
         for (a, b), k in Kq.items():
             if not k.is_zero:
                 G = G + k.scale(alg.var("z", a) * alg.var("w", b))
-        check(f"N={N}: (z+w) G(z,w) == E(z)E(w) - prod(1+beta_j^2 zw)  [Eq. (2.5) well posed]",
+        check(f"N={N}: (z+w) G(z,w) == E(z)E(w) - prod(1+beta_j^2 zw)  [Eq. (2.6) well posed]",
               (G.scale(z + w) - R).is_zero)
 
         ok = True
@@ -268,18 +268,18 @@ def check_section2_four_lines():
                 if (a + b) % 2:
                     rhs = minus(rhs)
                 ok &= (lhs - rhs).is_zero
-        check(f"N={N}: Eq. (2.5) coefficient extraction == Table 5 block", ok)
+        check(f"N={N}: Eq. (2.6) coefficient extraction == Table 3 block", ok)
 
-        # Eq. (2.6): B_{2 nu} = (-1)^{a_nu} D0 e_{a_nu}(A);  B_22 = sum A_j/beta_j^2
+        # Eq. (2.7): B_{2 nu} = (-1)^{a_nu} D0 e_{a_nu}(A);  B_22 = sum A_j/beta_j^2
         ok = all(
             (M[1][nu - 1] - (D0(alg) * e_r(alg, N, a_index(nu))).scale((-1) ** a_index(nu))).is_zero
             for nu in script_I
         )
-        check(f"N={N}: Eq. (2.6) row 2 == Table 5", ok)
-        check(f"N={N}: Eq. (2.6) B_22 == sum_j A_j/beta_j^2",
+        check(f"N={N}: Eq. (2.7) row 2 == Table 3", ok)
+        check(f"N={N}: Eq. (2.7) B_22 == sum_j A_j/beta_j^2",
               (M[1][1] - sum_expr((A_bil(alg, N, j).scale(beta(alg, j, -2)) for j in range(1, N + 1)), alg)).is_zero)
 
-        # Eq. (2.7): O_mu = (-1)^{a_mu} sum_j g_j D_j e_{a_mu}(A^{(j)});  O_2 = -sum g_j V_j
+        # Eq. (2.8): O_mu = (-1)^{a_mu} sum_j g_j D_j e_{a_mu}(A^{(j)});  O_2 = -sum g_j V_j
         ok = True
         for mu in script_I:
             a = a_index(mu)
@@ -287,9 +287,9 @@ def check_section2_four_lines():
                 (term(gvar(alg, j), D(alg, j), e_r(alg, N, a, [k for k in range(1, N + 1) if k != j]), alg=alg)
                  for j in range(1, N + 1)), alg).scale((-1) ** a)
             ok &= (M[mu - 1][N] - rhs).is_zero
-        check(f"N={N}: Eq. (2.7) constant column == Table 5", ok)
+        check(f"N={N}: Eq. (2.8) constant column == Table 3", ok)
 
-        # Eqs. (2.8), (2.9): the written-out H_1 and H_2.
+        # Eqs. (2.9), (2.10): the written-out H_1 and H_2.
         tau = [alg.var(x) for x in xs]
         H1_paper = (
             D0(alg).scale(tau[1])
@@ -298,7 +298,7 @@ def check_section2_four_lines():
             + sum_expr((e_r(alg, N, nu - 1).scale(tau[nu - 1]).scale((-1) ** nu)
                         for nu in range(3, N + 1)), alg)
         )
-        check(f"N={N}: Eq. (2.8) H_1 == table row 1", (H1_paper - H_of(alg, M, 1, xs)).is_zero)
+        check(f"N={N}: Eq. (2.9) H_1 == table row 1", (H1_paper - H_of(alg, M, 1, xs)).is_zero)
 
         H2_paper = (
             D0(alg).scale(tau[0])
@@ -307,7 +307,7 @@ def check_section2_four_lines():
             + sum_expr(((D0(alg) * e_r(alg, N, nu - 2)).scale(tau[nu - 1]).scale((-1) ** nu)
                         for nu in range(3, N + 1)), alg)
         )
-        check(f"N={N}: Eq. (2.9) H_2 == table row 2", (H2_paper - H_of(alg, M, 2, xs)).is_zero)
+        check(f"N={N}: Eq. (2.10) H_2 == table row 2", (H2_paper - H_of(alg, M, 2, xs)).is_zero)
 
 
 def _E(alg, N, u):
@@ -319,7 +319,7 @@ def _E(alg, N, u):
 
 
 # ---------------------------------------------------------------------------
-# Section 2.3 -- fermionization (Eqs. (2.10)-(2.14))
+# Section 2.3 -- fermionization (Eqs. (2.11)-(2.14))
 # ---------------------------------------------------------------------------
 
 def check_section2_fermions():
@@ -329,7 +329,7 @@ def check_section2_fermions():
         g = lambda k: alg.gen(k)
         half = alg.scalar((__import__("fractions").Fraction(1, 2), __import__("fractions").Fraction(0)))
 
-        def f(j):        # Eq. (2.10): f_j = (gamma_j - i gamma_{N+j})/2
+        def f(j):        # Eq. (2.11): f_j = (gamma_j - i gamma_{N+j})/2
             return (g(j) - g(N + j).scale((0, 1))) * half
 
         def fd(j):       # f_j^dagger = (gamma_j + i gamma_{N+j})/2
@@ -337,23 +337,23 @@ def check_section2_fermions():
 
         ok = all((f(j) * fd(k) + fd(k) * f(j) - (one(alg) if j == k else alg.zero())).is_zero
                  for j in range(1, N + 1) for k in range(1, N + 1))
-        check(f"N={N}: Eq. (2.10) {{f_j, f_k^dag}} = delta_jk", ok)
+        check(f"N={N}: Eq. (2.11) {{f_j, f_k^dag}} = delta_jk", ok)
         ok = all((f(j) * f(k) + f(k) * f(j)).is_zero
                  for j in range(1, N + 1) for k in range(1, N + 1))
-        check(f"N={N}: Eq. (2.10) {{f_j, f_k}} = 0", ok)
+        check(f"N={N}: Eq. (2.11) {{f_j, f_k}} = 0", ok)
 
-        # Eq. (2.11): i gamma_{N+j} gamma_j = 2 n_j - 1,  A_j = beta_j (2 n_j - 1)
+        # Eq. (2.12): i gamma_{N+j} gamma_j = 2 n_j - 1,  A_j = beta_j (2 n_j - 1)
         n = lambda j: fd(j) * f(j)
         ok = all((a_bilinear(alg, N, j) - (n(j).scale(2) - one(alg))).is_zero for j in range(1, N + 1))
-        check(f"N={N}: Eq. (2.11) i gamma_(N+j) gamma_j == 2 n_j - 1", ok)
+        check(f"N={N}: Eq. (2.12) i gamma_(N+j) gamma_j == 2 n_j - 1", ok)
         ok = all((A_bil(alg, N, j) - (n(j).scale(2) - one(alg)).scale(beta(alg, j))).is_zero
                  for j in range(1, N + 1))
-        check(f"N={N}: Eq. (2.11) A_j == beta_j (2 n_j - 1)", ok)
+        check(f"N={N}: Eq. (2.12) A_j == beta_j (2 n_j - 1)", ok)
         ok = all((g(j) - (f(j) + fd(j))).is_zero and
                  (g(N + j) - (f(j) - fd(j)).scale((0, 1))).is_zero for j in range(1, N + 1))
-        check(f"N={N}: Eq. (2.11) gamma_j = f+f^dag, gamma_(N+j) = i(f-f^dag)", ok)
+        check(f"N={N}: Eq. (2.12) gamma_j = f+f^dag, gamma_(N+j) = i(f-f^dag)", ok)
 
-        # Eq. (2.12): H_1 in fermionic variables (tau_nu = 0 for nu >= 4, tau_3 = eta)
+        # Eq. (2.13): H_1 in fermionic variables (tau_nu = 0 for nu >= 4, tau_3 = eta)
         t, eps = alg.var(xs[0]), alg.var(xs[1])
         eta = alg.var(xs[2]) if N >= 3 else None
         c0, gamma0 = g(-1), g(0)
@@ -372,14 +372,14 @@ def check_section2_fermions():
         if N >= 4:      # switch off tau_nu, nu >= 4
             for nu in range(4, N + 1):
                 H1_table = H1_table - M[0][nu - 1].scale(alg.var(xs[nu - 1]))
-        check(f"N={N}: Eq. (2.12) H_1 in fermion variables == table row 1", (H1_ferm - H1_table).is_zero)
+        check(f"N={N}: Eq. (2.13) H_1 in fermion variables == table row 1", (H1_ferm - H1_table).is_zero)
 
-        # Eq. (2.13): d = (gamma_0 - i c_0)/2
+        # Eq. (2.14): d = (gamma_0 - i c_0)/2
         d = (gamma0 - c0.scale((0, 1))) * half
         dd = (gamma0 + c0.scale((0, 1))) * half
-        check(f"N={N}: Eq. (2.13) i c_0 gamma_0 == 2 d^dag d - 1",
+        check(f"N={N}: Eq. (2.14) i c_0 gamma_0 == 2 d^dag d - 1",
               ((c0 * gamma0).scale((0, 1)) - (dd * d).scale(2) + one(alg)).is_zero)
-        check(f"N={N}: Eq. (2.13) i c_0 == d^dag - d", (c0.scale((0, 1)) - (dd - d)).is_zero)
+        check(f"N={N}: Eq. (2.14) i c_0 == d^dag - d", (c0.scale((0, 1)) - (dd - d)).is_zero)
         check(f"N={N}: Eq. (2.14) (d^dag-d)(f+f^dag) expansion",
               all(((dd - d) * (f(j) + fd(j))
                    - (dd * f(j) - d * fd(j) + dd * fd(j) - d * f(j))).is_zero
@@ -387,7 +387,7 @@ def check_section2_fermions():
 
 
 # ---------------------------------------------------------------------------
-# Section 4 -- the gamma-magnet family (Eqs. (4.1)-(4.11), Table 2)
+# Section 4 -- the gamma-magnet family (Eqs. (4.1)-(4.13), Table 2)
 # ---------------------------------------------------------------------------
 
 def fermionize(alg, expr):
@@ -404,7 +404,8 @@ def fermionize(alg, expr):
 
 
 def check_section4():
-    section("Section 4 -- gamma-magnet family, fermionization, N=3 and N=4 tables")
+    section("Section 4 -- gamma-magnet family, fermionization, N=3 table, "
+            "and the Appendix C N=4 members")
     for N in (3, 4):
         alg, M, xs = paper_table(N, range(1, N + 1))
         t, eps = alg.var(xs[0]), alg.var(xs[1])
@@ -412,28 +413,28 @@ def check_section4():
         gam = lambda k: alg.gen(k)
         c0, gamma0 = gam(-1), gam(0)
 
-        # Eqs. (4.4)-(4.9): the local commutator identities
+        # Eqs. (4.8)-(4.13): the local commutator identities
         As = [None] + [A_bil(alg, N, j) for j in range(1, N + 1)]
         Vs = [None] + [V(alg, N, j) for j in range(1, N + 1)]
         Ds = [None] + [D(alg, j) for j in range(1, N + 1)]
         d0 = D0(alg)
         ok = all(As[i].commutator(As[j]).is_zero for i in range(1, N + 1) for j in range(1, N + 1))
-        check(f"N={N}: Eq. (4.4) [A_i,A_j] = 0", ok)
-        check(f"N={N}: Eq. (4.5) [A_i,D_0] = 0",
+        check(f"N={N}: Eq. (4.8) [A_i,A_j] = 0", ok)
+        check(f"N={N}: Eq. (4.9) [A_i,D_0] = 0",
               all(As[i].commutator(d0).is_zero for i in range(1, N + 1)))
-        check(f"N={N}: Eq. (4.6) [A_i,D_j] = 0 (i != j)",
+        check(f"N={N}: Eq. (4.10) [A_i,D_j] = 0 (i != j)",
               all(As[i].commutator(Ds[j]).is_zero
                   for i in range(1, N + 1) for j in range(1, N + 1) if i != j))
-        check(f"N={N}: Eq. (4.7) [A_j,D_j] + beta_j^2 [D_0,V_j] = 0",
+        check(f"N={N}: Eq. (4.11) [A_j,D_j] + beta_j^2 [D_0,V_j] = 0",
               all((As[j].commutator(Ds[j]) + d0.commutator(Vs[j]).scale(beta(alg, j, 2))).is_zero
                   for j in range(1, N + 1)))
-        check(f"N={N}: Eq. (4.8) [A_j,V_j] + [D_0,D_j] = 0",
+        check(f"N={N}: Eq. (4.12) [A_j,V_j] + [D_0,D_j] = 0",
               all((As[j].commutator(Vs[j]) + d0.commutator(Ds[j])).is_zero
                   for j in range(1, N + 1)))
-        check(f"N={N}: Eq. (4.9) [V_j,D_j] = 0",
+        check(f"N={N}: Eq. (4.13) [V_j,D_j] = 0",
               all(Vs[j].commutator(Ds[j]).is_zero for j in range(1, N + 1)))
 
-        # Eqs. (4.1), (4.2): the spin/gamma forms, and their fermionic images (4.10), (4.11)
+        # Eqs. (4.1), (4.2): the spin/gamma forms, and their fermionic images (4.4), (4.5)
         H1g = (
             gamma0.scale(eps)
             + sum_expr((((gam(N + j) * gam(j)).scale((0, 1)).scale(beta(alg, j) * t))
@@ -466,9 +467,9 @@ def check_section4():
                 + ((c0 * gamma0) * (gam(N + j) * gam(j))).scale(eta * beta(alg, j))
                 for j in range(1, N + 1)), alg)
         )
-        check(f"N={N}: fermionization rule maps Eq. (4.1) -> Eq. (4.10)",
+        check(f"N={N}: fermionization rule maps Eq. (4.1) -> Eq. (4.4)",
               (fermionize(alg, H1g) - H1f).is_zero)
-        check(f"N={N}: fermionization rule maps Eq. (4.2) -> Eq. (4.11)",
+        check(f"N={N}: fermionization rule maps Eq. (4.2) -> Eq. (4.5)",
               (fermionize(alg, H2g) - H2f).is_zero)
 
         # H_1, H_2 of the table, with tau_nu = 0 for nu >= 4
@@ -478,10 +479,10 @@ def check_section4():
                 out = out - M[mu - 1][nu - 1].scale(alg.var(xs[nu - 1]))
             return out
 
-        check(f"N={N}: Eq. (4.10) H_1 == table row 1 (tau_nu=0, nu>=4)", (H1f - truncated(1)).is_zero)
-        check(f"N={N}: Eq. (4.11) H_2 == table row 2 (tau_nu=0, nu>=4)", (H2f - truncated(2)).is_zero)
+        check(f"N={N}: Eq. (4.4) H_1 == table row 1 (tau_nu=0, nu>=4)", (H1f - truncated(1)).is_zero)
+        check(f"N={N}: Eq. (4.5) H_2 == table row 2 (tau_nu=0, nu>=4)", (H2f - truncated(2)).is_zero)
 
-    # Eq. (4.3)/(4.12): the N=3 third member, gamma form and fermionic form
+    # Eq. (4.3)/(4.6): the N=3 third member, gamma form and fermionic form
     N = 3
     alg, M, xs = paper_table(N, range(1, N + 1))
     t, eps, eta = (alg.var(x) for x in xs)
@@ -516,10 +517,10 @@ def check_section4():
                     * sum_expr((ibil(k).scale(beta(alg, k)) for k in (1, 2, 3) if k != j), alg)
                     for j in (1, 2, 3)), alg)
     )
-    check("N=3: fermionization rule maps Eq. (4.3) -> Eq. (4.12)", (fermionize(alg, H3g) - H3f).is_zero)
-    check("N=3: Eq. (4.12) H_3 == table row 3", (H3f - H_of(alg, M, 3, xs)).is_zero)
+    check("N=3: fermionization rule maps Eq. (4.3) -> Eq. (4.6)", (fermionize(alg, H3g) - H3f).is_zero)
+    check("N=3: Eq. (4.6) H_3 == table row 3", (H3f - H_of(alg, M, 3, xs)).is_zero)
 
-    # Eqs. (4.13)-(4.15): the N=3 bilinear forms, and Table 2
+    # Eqs. (4.14)-(4.16): the N=3 bilinear forms, and Table 2
     Aj = [None] + [A_bil(alg, N, j) for j in (1, 2, 3)]
     Vj = [None] + [V(alg, N, j) for j in (1, 2, 3)]
     Dj = [None] + [D(alg, j) for j in (1, 2, 3)]
@@ -562,9 +563,9 @@ def check_section4():
                       + Dj[3].scale(gvar(alg, 3)) * (Aj[1] + Aj[2])),
     }
     ok = all((tab2[(mu, nu)] - M[mu - 1][(N if nu == 0 else nu - 1)]).is_zero for mu, nu in tab2)
-    check("N=3: Table 2 entries == closed-form Table 5", ok)
+    check("N=3: Table 2 entries == closed-form Table 3", ok)
 
-    # Eq. (4.16): the generating potential Phi_3 vs the general Eq. (3.14)
+    # Eq. (4.17): the generating potential Phi_3 vs the general Eq. (3.11)
     half = (__import__("fractions").Fraction(1, 2), __import__("fractions").Fraction(0))
     Phi_general = sum_expr(
         (M[mu - 1][nu - 1].scale(alg.var(xs[mu - 1]) * alg.var(xs[nu - 1])) for mu in (1, 2, 3) for nu in (1, 2, 3)),
@@ -583,10 +584,10 @@ def check_section4():
            + Dj[2].scale(gvar(alg, 2)) * (Aj[1] + Aj[3])
            + Dj[3].scale(gvar(alg, 3)) * (Aj[1] + Aj[2])).scale(eta)
     )
-    check("N=3: Eq. (4.16) Phi_3 == the general quadratic potential Eq. (3.14)",
+    check("N=3: Eq. (4.17) Phi_3 == the general quadratic potential Eq. (3.11)",
           (Phi_paper - Phi_general).is_zero)
 
-    # Section 4.2: the explicit N=4 Hamiltonians
+    # Appendix C: the explicit N=4 Hamiltonians
     N = 4
     alg, M, xs = paper_table(N, range(1, N + 1))
     t, eps, eta, zeta = (alg.var(x) for x in xs)
@@ -633,7 +634,7 @@ def check_section4():
                     for j in idx), alg)
     )
     for mu, Hp in ((1, H1_4), (2, H2_4), (3, H3_4), (4, H4_4)):
-        check(f"N=4: Section 4.2 explicit H_{mu} == closed-form table row {mu}",
+        check(f"N=4: Appendix C explicit H_{mu} == closed-form table row {mu}",
               (Hp - H_of(alg, M, mu, xs)).is_zero)
 
 
@@ -652,17 +653,17 @@ def _sum_poly(alg, parts):
 
 
 # ---------------------------------------------------------------------------
-# Section 5 -- generating function (Eqs. (5.1)-(5.10))
+# Appendix D -- generating function (Eqs. (D.1)-(D.9))
 # ---------------------------------------------------------------------------
 
 def check_section5():
-    section("Section 5 -- generating function for B_{mu nu}")
+    section("Appendix D -- generating function for B_{mu nu}")
     for N in (2, 3, 4):
         # tables extended to N+2 rows so the full-series claims can be tested
         alg, M, xs = paper_table(N, range(1, N + 3), extra=("z", "w", "T", "U", "s"))
         z, w, T, U, s = (alg.var(v) for v in ("z", "w", "T", "U", "s"))
 
-        # Eq. (5.1) and Eq. (5.2)
+        # Eq. (D.1) and Eq. (D.2)
         P = one(alg)
         for j in range(1, N + 1):
             P = P * (one(alg) + A_bil(alg, N, j).scale(T) + alg.scalar(beta(alg, j, 2) * U))
@@ -677,10 +678,10 @@ def check_section5():
                             p = p * beta(alg, j, 2)
                         E_rs = E_rs + A_subset(alg, N, I).scale(p).scale(
                             alg.var("T", r) * alg.var("U", sd))
-        check(f"N={N}: Eq. (5.2) E_(r,s) are the coefficients of Eq. (5.1) P(T,U)",
+        check(f"N={N}: Eq. (D.2) E_(r,s) are the coefficients of Eq. (D.1) P(T,U)",
               (P - E_rs).is_zero)
 
-        # factorization of each factor, and Eq. (5.3)
+        # factorization of each factor, and Eq. (D.4)
         ok = all((one(alg) + A_bil(alg, N, j).scale(z + w) + alg.scalar(beta(alg, j, 2) * z * w)
                   - (one(alg) + A_bil(alg, N, j).scale(z)) * (one(alg) + A_bil(alg, N, j).scale(w))).is_zero
                  for j in range(1, N + 1))
@@ -688,7 +689,7 @@ def check_section5():
         P_sub = one(alg)
         for j in range(1, N + 1):
             P_sub = P_sub * (one(alg) + A_bil(alg, N, j).scale(z + w) + alg.scalar(beta(alg, j, 2) * z * w))
-        check(f"N={N}: Eq. (5.3) P(z+w, zw) == E(z) E(w)",
+        check(f"N={N}: Eq. (D.4) P(z+w, zw) == E(z) E(w)",
               (P_sub - _E(alg, N, z) * _E(alg, N, w)).is_zero)
 
         # kernel G and its coefficients K_{a,b}
@@ -701,41 +702,41 @@ def check_section5():
             for a in range(N + 2, -1, -1):
                 Kq[(a, b)] = coeff_of(alg, R, {"z": a + 1, "w": b}) - Kq.get((a + 1, b - 1), alg.zero())
 
-        # Eqs. (5.4)/(5.5): the mu,nu >= 3 block, and the mu = 1 row from a = 0
+        # Eqs. (D.5)/(D.6): the mu,nu >= 3 block, and the mu = 1 row from a = 0
         ok = True
         for mu in range(3, N + 3):
             for nu in range(3, N + 3):
                 a, b = mu - 2, nu - 2
                 rhs = Kq[(a, b)].scale((-1) ** (mu + nu))
                 ok &= (M[mu - 1][nu - 1] - rhs).is_zero
-        check(f"N={N}: Eq. (5.5) B_(mu nu) = (-1)^(mu+nu)[z^(mu-2) w^(nu-2)]G, mu,nu>=3", ok)
+        check(f"N={N}: Eq. (D.6) B_(mu nu) = (-1)^(mu+nu)[z^(mu-2) w^(nu-2)]G, mu,nu>=3", ok)
         ok = all((M[0][nu - 1] - Kq[(0, a_index(nu))].scale((-1) ** a_index(nu))).is_zero
                  for nu in [1] + list(range(3, N + 2)))
-        check(f"N={N}: Eq. (5.6) the a=0 coefficients give row 1", ok)
+        check(f"N={N}: the a=0 coefficients of Eq. (D.6) give row 1", ok)
 
         # support of the kernel: K_{a,b} != 0 only for max(a,b) <= N-1
         ok = all(Kq[(a, b)].is_zero
                  for a in range(0, N + 3) for b in range(0, N + 3) if max(a, b) > N - 1)
-        check(f"N={N}: Thm 7.5(i) support -- K_(a,b) = 0 unless max(a,b) <= N-1", ok)
+        check(f"N={N}: Theorem 6.6(i) support -- K_(a,b) = 0 unless max(a,b) <= N-1", ok)
 
-        # Eq. (5.8): row 1 series, extended range nu = 3..N+1
+        # Eq. (D.7): row 1 series, extended range nu = 3..N+1
         lhs = sum_expr((M[0][nu - 1].scale(alg.var("s", nu - 1)).scale((-1) ** nu)
                         for nu in range(3, N + 2)), alg)
         rhs = _E(alg, N, s) - one(alg) - sum_expr((A_bil(alg, N, j) for j in range(1, N + 1)), alg).scale(s)
-        check(f"N={N}: Eq. (5.8) row-1 series over nu=3..N+1", (lhs - rhs).is_zero)
+        check(f"N={N}: Eq. (D.7) row-1 series over nu=3..N+1", (lhs - rhs).is_zero)
         if N >= 2:      # and it genuinely fails if truncated at nu = N
             trunc = sum_expr((M[0][nu - 1].scale(alg.var("s", nu - 1)).scale((-1) ** nu)
                               for nu in range(3, N + 1)), alg)
-            check(f"N={N}: (control) truncating Eq. (5.8) at nu=N does NOT close",
+            check(f"N={N}: (control) truncating Eq. (D.7) at nu=N does NOT close",
                   not (trunc - rhs).is_zero)
 
-        # Eq. (5.9): row 2 series, extended range nu = 3..N+2
+        # Eq. (D.8): row 2 series, extended range nu = 3..N+2
         lhs = sum_expr((M[1][nu - 1].scale(alg.var("s", nu - 2)).scale((-1) ** nu)
                         for nu in range(3, N + 3)), alg)
         rhs = D0(alg) * (_E(alg, N, s) - one(alg))
-        check(f"N={N}: Eq. (5.9) row-2 series over nu=3..N+2", (lhs - rhs).is_zero)
+        check(f"N={N}: Eq. (D.8) row-2 series over nu=3..N+2", (lhs - rhs).is_zero)
 
-        # Eq. (5.10): constant column over the extended index set I' = {1,3,...,N+1}
+        # Eq. (D.9): constant column over the extended index set I' = {1,3,...,N+1}
         lhs = sum_expr((M[mu - 1][N + 2].scale(alg.var("s", a_index(mu))).scale((-1) ** a_index(mu))
                         for mu in [1] + list(range(3, N + 2))), alg)
         rhs = alg.zero()
@@ -745,9 +746,9 @@ def check_section5():
                 if i != j:
                     Ej = Ej * (one(alg) + A_bil(alg, N, i).scale(s))
             rhs = rhs + term(gvar(alg, j), D(alg, j), Ej, alg=alg)
-        check(f"N={N}: Eq. (5.10) constant-column series over I' = {{1,3,..,N+1}}", (lhs - rhs).is_zero)
+        check(f"N={N}: Eq. (D.9) constant-column series over I' = {{1,3,..,N+1}}", (lhs - rhs).is_zero)
 
-        # the three named top coefficients quoted in the text after (5.8)-(5.10)
+        # the three named top coefficients quoted in the text after (D.7)-(D.9)
         X = e_r(alg, N, N) * D0(alg)
         check(f"N={N}: B_(1,N+1) == (-1)^(N-1) e_N(A)",
               (M[0][N] - e_r(alg, N, N).scale((-1) ** (N - 1))).is_zero)
@@ -760,19 +761,19 @@ def check_section5():
 
 
 # ---------------------------------------------------------------------------
-# Section 6 -- symmetric-polynomial structure
+# Section 5 -- symmetric-polynomial structure
 # ---------------------------------------------------------------------------
 
 def check_section6():
-    section("Section 6 -- symmetric-polynomial structure")
+    section("Section 5 -- symmetric-polynomial structure")
     for N in (2, 3, 4):
         alg, M, xs = paper_table(N, range(1, N + 1), extra=("z", "s"))
         z, s = alg.var("z"), alg.var("s")
         script_I = [m for m in range(1, N + 1) if m != 2]
 
-        # Section 6.1: the abelian core
+        # Section 5.1: the abelian core
         entries = [M[mu - 1][nu - 1] for mu in range(1, N + 1) for nu in range(1, N + 1)]
-        check(f"N={N}: Section 6.1 all Hessian entries commute pairwise",
+        check(f"N={N}: Section 5.1 all Hessian entries commute pairwise",
               all(p.commutator(q).is_zero for p in entries for q in entries))
 
         # row 1, row 2, constant column in the e-basis
@@ -786,13 +787,13 @@ def check_section6():
         check(f"N={N}: B_(1N) == (-1)^N e_(N-1)",
               N < 3 or (M[0][N - 1] - e_r(alg, N, N - 1).scale((-1) ** N)).is_zero)
 
-        # Eq. (6.4)
+        # Eq. (5.5)
         e1 = e_r(alg, N, 1)
-        check(f"N={N}: Eq. (6.4) e_1^2 == e_1(beta^2) + 2 e_2",
+        check(f"N={N}: Eq. (5.5) e_1^2 == e_1(beta^2) + 2 e_2",
               (e1 * e1 - alg.scalar(e_beta2(alg, 1, range(1, N + 1)))
                - e_r(alg, N, 2).scale(2)).is_zero)
 
-        # Proposition 6.1, Eq. (6.5): linearization of e_a e_b
+        # Proposition 5.1, Eq. (5.6): linearization of e_a e_b
         ok = True
         for a in range(0, N + 2):
             for b in range(0, N + 2):
@@ -812,9 +813,9 @@ def check_section6():
                             continue
                         rhs = rhs + A_subset(alg, N, I).scale(es).scale(c)
                 ok &= (lhs - rhs).is_zero
-        check(f"N={N}: Proposition 6.1 / Eq. (6.5) linearization of e_a e_b", ok)
+        check(f"N={N}: Proposition 5.1 / Eq. (5.6) linearization of e_a e_b", ok)
 
-        # Eq. (6.9): the three-term recursion
+        # Eq. (5.7): the three-term recursion
         ok = True
         for a in range(0, N + 2):
             for b in range(0, N + 2):
@@ -824,9 +825,9 @@ def check_section6():
                 if a == b:
                     rhs = rhs - alg.scalar(e_beta2(alg, a, range(1, N + 1)))
                 ok &= (lhs - rhs).is_zero
-        check(f"N={N}: Eq. (6.9) K_(a-1,b) + K_(a,b-1) = e_a e_b - delta_ab e_a(beta^2)", ok)
+        check(f"N={N}: Eq. (5.7) K_(a-1,b) + K_(a,b-1) = e_a e_b - delta_ab e_a(beta^2)", ok)
 
-        # Eq. (6.10): the kernel identity
+        # Eq. (E.1): the kernel identity
         G = alg.zero()
         for a in range(0, N + 1):
             for b in range(0, N + 1):
@@ -836,22 +837,24 @@ def check_section6():
         P0 = one(alg)
         for j in range(1, N + 1):
             P0 = P0 * (one(alg) + alg.scalar(beta(alg, j, 2) * z * s))
-        check(f"N={N}: Eq. (6.10) (z+w) sum K z^a w^b == E(z)E(w) - prod(1+beta_j^2 zw)",
+        check(f"N={N}: Eq. (E.1) (z+w) sum K z^a w^b == E(z)E(w) - prod(1+beta_j^2 zw)",
               (G.scale(z + s) - (_E(alg, N, z) * _E(alg, N, s) - P0)).is_zero)
 
-        # the worked example after Eq. (6.10)
+        # the worked example after Eq. (E.1)
         check(f"N={N}: K_01 == K_10 == e_2",
               (K_paper(alg, N, 0, 1) - e_r(alg, N, 2)).is_zero
               and (K_paper(alg, N, 1, 0) - e_r(alg, N, 2)).is_zero)
 
-        # Eq. (6.14): the reflection identity
+        # Eq. (5.8): the reflection identity
         prod = one(alg)
         for j in range(1, N + 1):
             prod = prod * (one(alg) - alg.scalar(beta(alg, j, 2) * z * z))
-        check(f"N={N}: Eq. (6.14) E(z)E(-z) == prod(1 - beta_j^2 z^2)",
+        check(f"N={N}: Eq. (5.8) E(z)E(-z) == prod(1 - beta_j^2 z^2)",
               (_E(alg, N, z) * _E(alg, N, alg.const_poly(0) - z) - prod).is_zero)
 
-    # Eq. (6.20): Krawtchouk evaluation on the isotropic hypercube
+    # Krawtchouk evaluation on the isotropic hypercube.  The identity is no
+    # longer printed in the paper (the named-polynomial discussion was cut),
+    # but the check is kept: it guards the hypercube spectrum, Eq. (5.3).
     ok = True
     for N in range(1, 8):
         for k in range(0, N + 1):
@@ -862,7 +865,9 @@ def check_section6():
                 )
                 krawt = sum((-1) ** i * comb(k, i) * comb(N - k, r - i) for i in range(0, r + 1))
                 ok &= direct == krawt
-    check("Eq. (6.20) e_r on a k-minus sign vector == binary Krawtchouk K_r(k;N)", ok)
+    check("e_r on a k-minus sign vector == binary Krawtchouk K_r(k;N) "
+          "[identity no longer printed in the paper; it guards the "
+          "hypercube spectrum, Eq. (5.3)]", ok)
 
 
 def _prod(xs):
@@ -873,11 +878,11 @@ def _prod(xs):
 
 
 # ---------------------------------------------------------------------------
-# Section 7 -- (N+1)-st flow, parity duality, termination
+# Section 6 -- (N+1)-st flow, parity duality, termination
 # ---------------------------------------------------------------------------
 
 def check_section7():
-    section("Section 7 -- (N+1)-st flow, parity duality, maximality")
+    section("Section 6 -- (N+1)-st flow, parity duality, maximality")
     for N in (2, 3, 4):
         top = N + 2
         alg, M, xs = paper_table(N, range(1, top + 1))
@@ -892,7 +897,7 @@ def check_section7():
         check(f"N={N}: Lemma 7.3 X^2 == prod beta_j^2", (X * X - alg.scalar(prod_b2)).is_zero)
         check(f"N={N}: Lemma 7.3 X commutes with every table entry",
               all(X.commutator(e).is_zero for row in M for e in row))
-        # Eqs. (7.6)-(7.7): Gamma = c_0 gamma_0 gamma_1...gamma_2N, Gamma^2 = (-1)^(N+1),
+        # Eqs. (F.1)-(F.2): Gamma = c_0 gamma_0 gamma_1...gamma_2N, Gamma^2 = (-1)^(N+1),
         # and X = kappa_N (prod beta_j) Gamma with kappa_N = 1 (N odd) / i (N even).
         # v1 printed "X = +/- (prod beta_j) Gamma", which is wrong for even N:
         # the discrepancy is a phase i, not a sign (erratum V8).
@@ -901,9 +906,9 @@ def check_section7():
         for j in range(1, N + 1):
             prod_b = prod_b * beta(alg, j)
         kappa = (1, 0) if N % 2 else (0, 1)
-        check(f"N={N}: Eq. (7.6) Gamma^2 == (-1)^(N+1)",
+        check(f"N={N}: Eq. (F.1) Gamma^2 == (-1)^(N+1)",
               (Gamma * Gamma - one(alg).scale((-1) ** (N + 1))).is_zero)
-        check(f"N={N}: Eq. (7.7) X == kappa_N (prod beta_j) Gamma, kappa_N = "
+        check(f"N={N}: Eq. (F.2) X == kappa_N (prod beta_j) Gamma, kappa_N = "
               f"{'1' if N % 2 else 'i'}",
               (X - Gamma.scale(prod_b).scale(kappa)).is_zero)
         check(f"N={N}: (control) the v1 form X = +/- (prod beta_j) Gamma "
@@ -911,7 +916,7 @@ def check_section7():
               ((X - Gamma.scale(prod_b)).is_zero or (X + Gamma.scale(prod_b)).is_zero)
               == bool(N % 2))
 
-        # Eq. (7.2): the explicit (N+1)-st member
+        # Eq. (6.1): the explicit (N+1)-st member
         HN1 = (
             e_r(alg, N, N).scale(tau[0])
             + (D0(alg) * e_r(alg, N, N - 1)).scale(tau[1])
@@ -924,22 +929,22 @@ def check_section7():
         ).scale((-1) ** (N - 1))
         # H_{N+1} from the table, with the level-(N+2) time switched off
         HN1_table = H_of(alg, M, N + 1, xs) - M[N][N + 1].scale(tau[N + 1])
-        check(f"N={N}: Eq. (7.2) explicit H_(N+1) == table row N+1", (HN1 - HN1_table).is_zero)
+        check(f"N={N}: Eq. (6.1) explicit H_(N+1) == table row N+1", (HN1 - HN1_table).is_zero)
 
         # Theorem 7.2 proof: the t-column is e_1, D_0, -e_2, e_3, ..., (-1)^(N+1) e_N
         col = [M[mu - 1][0] for mu in range(1, N + 2)]
         ok = (col[0] - e_r(alg, N, 1)).is_zero and (col[1] - D0(alg)).is_zero
         for mu in range(3, N + 2):
             ok &= (col[mu - 1] - e_r(alg, N, mu - 1).scale((-1) ** mu)).is_zero
-        check(f"N={N}: Thm 7.2 t-column == e_1, D_0, -e_2, e_3, ..., (-1)^(N+1) e_N", ok)
-        check(f"N={N}: Thm 7.2 last t-column entry sign is (-1)^(N+1) (errata item V4)",
+        check(f"N={N}: Theorem 6.1 t-column == e_1, D_0, -e_2, e_3, ..., (-1)^(N+1) e_N", ok)
+        check(f"N={N}: Theorem 6.1 last t-column entry sign is (-1)^(N+1) (errata item V4)",
               (M[N][0] - e_r(alg, N, N).scale((-1) ** (N + 1))).is_zero)
 
         # Theorem 7.4: the column-by-column duality (nu = 1..N+1 and the constant column)
         sgn = (-1) ** (N - 1)
         ok = all((M[N][nu - 1] - (X * M[1][nu - 1]).scale(sgn)).is_zero for nu in range(1, N + 2))
-        check(f"N={N}: Thm 7.4 B_(N+1,nu) = (-1)^(N-1) X B_(2 nu), nu=1..N+1", ok)
-        check(f"N={N}: Thm 7.4 O_(N+1) = (-1)^(N-1) X O_2",
+        check(f"N={N}: Theorem 6.3 B_(N+1,nu) = (-1)^(N-1) X B_(2 nu), nu=1..N+1", ok)
+        check(f"N={N}: Theorem 6.3 O_(N+1) = (-1)^(N-1) X O_2",
               (M[N][top] - (X * M[1][top]).scale(sgn)).is_zero)
         # the auxiliary identities used in the proof
         check(f"N={N}: proof (a) A_hat(j) A_j == e_N(A), i.e. A_hat(j) = e_N A_j / beta_j^2",
@@ -972,16 +977,16 @@ def check_section7():
                  for mu in [m for m in range(1, N + 5) if m != 2]
                  for nu in [m for m in range(1, N + 5) if m != 2]
                  if max(mu, nu) >= N + 2)
-        check(f"N={N}: Thm 7.5(i) block entries vanish for max(mu,nu) >= N+2", ok)
-        check(f"N={N}: Thm 7.5(ii) first and constant columns vanish for mu >= N+2",
+        check(f"N={N}: Theorem 6.6(i) block entries vanish for max(mu,nu) >= N+2", ok)
+        check(f"N={N}: Theorem 6.6(ii) first and constant columns vanish for mu >= N+2",
               all(M2[mu - 1][0].is_zero and M2[mu - 1][N + 4].is_zero for mu in big))
         row = M2[N + 1]
         nz = [(c, e) for c, e in enumerate(row) if not e.is_zero]
-        check(f"N={N}: Thm 7.5(iii) row N+2 has the single entry B_(N+2,2) = (-1)^N X",
+        check(f"N={N}: Theorem 6.6(iii) row N+2 has the single entry B_(N+2,2) = (-1)^N X",
               len(nz) == 1 and nz[0][0] == 1 and (nz[0][1] - X2.scale((-1) ** N)).is_zero)
-        check(f"N={N}: Thm 7.5(iii) rows mu >= N+3 vanish identically",
+        check(f"N={N}: Theorem 6.6(iii) rows mu >= N+3 vanish identically",
               all(e.is_zero for mu in range(N + 3, N + 5) for e in M2[mu - 1]))
-        check(f"N={N}: Thm 7.5(iii) H_(N+2) == (-1)^N eps X",
+        check(f"N={N}: Theorem 6.6(iii) H_(N+2) == (-1)^N eps X",
               (H_of(alg2, M2, N + 2, xs2)
                - X2.scale(alg2.var(xs2[1])).scale((-1) ** N)).is_zero)
 
@@ -991,7 +996,7 @@ def check_section7():
         check(f"N={N}: Remark 7.10 O_2 = (-1)^(N-1) X O_(N+1) / prod beta_j^2",
               (M[1][top].scale(prod_b2) - (X * M[N][top]).scale((-1) ** (N - 1))).is_zero)
 
-    # Eqs. (7.6)-(7.7) over the whole range claimed in the paper.  This needs no
+    # Eqs. (F.1)-(F.2) over the whole range claimed in the paper.  This needs no
     # table, so it is cheap enough to run well past N=4.
     ok_g, ok_k, ok_v1 = True, True, True
     for N in range(1, 7):
@@ -1005,11 +1010,11 @@ def check_section7():
         ok_k &= (X - Gamma.scale(prod_b).scale((1, 0) if N % 2 else (0, 1))).is_zero
         v1_holds = (X - Gamma.scale(prod_b)).is_zero or (X + Gamma.scale(prod_b)).is_zero
         ok_v1 &= (v1_holds == bool(N % 2))
-    check("N=1..6: Eq. (7.6) Gamma^2 == (-1)^(N+1)", ok_g)
-    check("N=1..6: Eq. (7.7) X == kappa_N (prod beta_j) Gamma, kappa_N = 1/i for N odd/even", ok_k)
+    check("N=1..6: Eq. (F.1) Gamma^2 == (-1)^(N+1)", ok_g)
+    check("N=1..6: Eq. (F.2) X == kappa_N (prod beta_j) Gamma, kappa_N = 1/i for N odd/even", ok_k)
     check("N=1..6: (control) the v1 form X = +/- (prod beta_j) Gamma holds iff N is odd", ok_v1)
 
-    # Eq. (7.3): the explicit N=3 fourth member
+    # Eq. (6.2): the explicit N=3 fourth member
     N = 3
     alg, M, xs = paper_table(N, range(1, N + 2))
     t, eps, eta, zetap = (alg.var(x) for x in xs)
@@ -1028,9 +1033,9 @@ def check_section7():
                          A_subset(alg, N, [k for k in (1, 2, 3) if k != j]), alg=alg)
                     for j in (1, 2, 3)), alg)
     )
-    check("N=3: Eq. (7.3) explicit H_4 == table row 4", (H4 - H_of(alg, M, 4, xs)).is_zero)
+    check("N=3: Eq. (6.2) explicit H_4 == table row 4", (H4 - H_of(alg, M, 4, xs)).is_zero)
 
-    # Section 7.3: the printed N=2 extended table (7.13) and its duality lines
+    # Appendix F.1: the printed N=2 extended table (F.3) and its duality lines
     N = 2
     alg, M, xs = paper_table(N, range(1, 5))
     A1, A2 = A_bil(alg, N, 1), A_bil(alg, N, 2)
@@ -1053,20 +1058,20 @@ def check_section7():
         (4, 0): alg.zero(),
     }
     ok = all((printed[(mu, nu)] - M[mu - 1][(4 if nu == 0 else nu - 1)]).is_zero for mu, nu in printed)
-    check("N=2: printed extended table Eq. (7.13) == closed form", ok)
-    check("N=2: Eq. (7.14) X = A_1 A_2 D_0 with X^2 = beta_1^2 beta_2^2",
+    check("N=2: printed extended table Eq. (F.3) == closed form", ok)
+    check("N=2: Eq. (F.4) X = A_1 A_2 D_0 with X^2 = beta_1^2 beta_2^2",
           (Xe * Xe - alg.scalar(b1s * b2s)).is_zero)
     check("N=2: worked B_33 == beta_2^2 A_1 + beta_1^2 A_2",
           (M[2][2] - (A1.scale(b2s) + A2.scale(b1s))).is_zero)
     check("N=2: worked B_24 == D_0 e_2(A) == X", (M[1][3] - Xe).is_zero)
     ok = all((M[2][nu - 1] + Xe * M[1][nu - 1]).is_zero for nu in (1, 2, 3)) and \
         (M[2][4] + Xe * M[1][4]).is_zero
-    check("N=2: Section 7.3 column-by-column duality B_(3 nu) = -X B_(2 nu)", ok)
+    check("N=2: Appendix F.1 column-by-column duality B_(3 nu) = -X B_(2 nu)", ok)
     H3 = H_of(alg, M, 3, xs)
     H2 = H_of(alg, M, 2, xs) - M[1][3].scale(alg.var(xs[3]))
-    check("N=2: Section 7.3 H_3 = -X H_2 (with tau_4 = 0)",
+    check("N=2: Appendix F.1 H_3 = -X H_2 (with tau_4 = 0)",
           (H3 - minus(Xe * H2)).is_zero)
-    check("N=2: Section 7.3 H_4 = eps X", (H_of(alg, M, 4, xs) - Xe.scale(alg.var(xs[1]))).is_zero)
+    check("N=2: Appendix F.1 H_4 = eps X", (H_of(alg, M, 4, xs) - Xe.scale(alg.var(xs[1]))).is_zero)
 
 
 def _prod_poly(alg, parts):
@@ -1174,7 +1179,7 @@ def site_op(N, j, P):
 
 
 def check_spin_representation():
-    section("Section 2.4 / Remark 7.7 -- the spin representation (exact 2^N matrices)")
+    section("Section 2.4 / Remark 6.5 -- the spin representation (exact 2^N matrices)")
     for N in (2, 3, 4):
         sx = [None] + [site_op(N, j, _SX) for j in range(1, N + 1)]
         sy = [None] + [site_op(N, j, _SY) for j in range(1, N + 1)]
@@ -1188,10 +1193,10 @@ def check_spin_representation():
             return out
 
         gam = [None] * (2 * N + 1)
-        for j in range(1, N + 1):          # Eq. (2.15)
+        for j in range(1, N + 1):          # Eq. (2.16)
             gam[j] = string(j) * sx[j]
             gam[N + j] = string(j) * sy[j]
-        g0 = ID                            # Eq. (2.16): gamma_0 = prod sigma^z_k
+        g0 = ID                            # Eq. (2.17): gamma_0 = prod sigma^z_k
         for k in range(1, N + 1):
             g0 = g0 * sz[k]
 
@@ -1199,22 +1204,22 @@ def check_spin_representation():
         ok = all((gens[i] * gens[j] + gens[j] * gens[i]
                   - (ID.scale(2) if i == j else Mat(2 ** N))).is_zero
                  for i in range(len(gens)) for j in range(len(gens)))
-        check(f"N={N}: Eq. (2.15)-(2.16) the 2N+1 spin gammas obey the Clifford relations", ok)
-        check(f"N={N}: Eq. (2.16) gamma_0^2 = 1 and {{gamma_0, gamma_i}} = 0",
+        check(f"N={N}: Eqs. (2.15)-(2.17) the 2N+1 spin gammas obey the Clifford relations", ok)
+        check(f"N={N}: Eq. (2.17) gamma_0^2 = 1 and {{gamma_0, gamma_i}} = 0",
               (g0 * g0 - ID).is_zero and
               all((g0 * gam[i] + gam[i] * g0).is_zero for i in range(1, 2 * N + 1)))
         ok = all(((gam[N + j] * gam[j]).scale((Fraction(0), Fraction(1))) - sz[j]).is_zero
                  for j in range(1, N + 1))
-        check(f"N={N}: Eq. (2.15) i gamma_(N+j) gamma_j == sigma^z_j (strings cancel)", ok)
+        check(f"N={N}: Eq. (2.16) i gamma_(N+j) gamma_j == sigma^z_j (strings cancel)", ok)
 
-        # Remark 7.7 / Eq. (7.20): A_1...A_N = (prod beta_j) gamma_0 in the spin rep
+        # Remark 6.5 / Eq. (6.6): A_1...A_N = (prod beta_j) gamma_0 in the spin rep
         prod_sz = ID
         for k in range(1, N + 1):
             prod_sz = prod_sz * sz[k]
-        check(f"N={N}: Remark 7.7 A_1...A_N == (prod beta_j) gamma_0 (constant exactly 1)",
+        check(f"N={N}: Remark 6.5 A_1...A_N == (prod beta_j) gamma_0 (constant exactly 1)",
               (prod_sz - g0).is_zero)
 
-    # Eq. (2.17): the spin form of H_1 as the image of the fermionic H_1
+    # Eq. (2.18): the spin form of H_1 as the image of the fermionic H_1
     for N in (2, 3):
         alg, M, xs = paper_table(N, range(1, N + 1))
         sx = [None] + [site_op(N, j, _SX) for j in range(1, N + 1)]
@@ -1276,7 +1281,7 @@ def check_spin_representation():
             eta = vals[xs[2]]
             for i, j in itertools.combinations(range(1, N + 1), 2):
                 H1_spin = H1_spin - (sz[i] * sz[j]).scale((b(i)[0] * b(j)[0] * eta, Fraction(0)))
-        check(f"N={N}: Eq. (2.17) H_1^spin == the spin image of the fermionic H_1",
+        check(f"N={N}: Eq. (2.18) H_1^spin == the spin image of the fermionic H_1",
               (rho(H_of(alg, M, 1, xs)) - H1_spin).is_zero)
 
 
@@ -1293,7 +1298,7 @@ def _evaluate(alg, poly, vals):
 
 
 def check_section8_gaudin():
-    section("Section 8 -- Gaudin comparison (Eqs. (8.1)-(8.5))")
+    section("Section 7 -- Gaudin comparison (Eqs. (7.1)-(7.5))")
     for N in (3, 4):
         n = 2 ** N
         sx = [None] + [site_op(N, j, _SX) for j in range(1, N + 1)]
@@ -1307,10 +1312,10 @@ def check_section8_gaudin():
                       for j in range(1, N + 1) if j != k])
             for k in range(1, N + 1)
         ]
-        check(f"N={N}: Eq. (8.1) Gaudin family commutes, [H^G_k, H^G_l] = 0",
+        check(f"N={N}: Eq. (7.1) Gaudin family commutes, [H^G_k, H^G_l] = 0",
               all(H[k].comm(H[l]).is_zero for k in range(1, N + 1) for l in range(1, N + 1)))
 
-        # Eq. (8.3): the su(2) commutator identity, on distinct sites a,b,c
+        # Eq. (7.3): the su(2) commutator identity, on distinct sites a,b,c
         ok = True
         for a, b, c in itertools.permutations(range(1, N + 1), 3):
             lhs = dot(a, b).comm(dot(b, c))
@@ -1320,16 +1325,16 @@ def check_section8_gaudin():
                 (sx[a] * sy[c] - sy[a] * sx[c]) * sz[b],
             ])
             ok &= (lhs - cross.scale((Fraction(0), Fraction(2)))).is_zero
-        check(f"N={N}: Eq. (8.3) [s_a.s_b, s_b.s_c] == 2i (s_a x s_c).s_b", ok)
+        check(f"N={N}: Eq. (7.3) [s_a.s_b, s_b.s_c] == 2i (s_a x s_c).s_b", ok)
 
-    # Eq. (8.4): the three-point partial-fraction identity
+    # Eq. (7.4): the three-point partial-fraction identity
     ok = True
     for tk, tl, tj in itertools.permutations([Fraction(x) for x in (1, 5, -2, 7, 13, -3)], 3):
         f = lambda a, b: Fraction(1) / (a - b)
         ok &= f(tk, tj) * f(tl, tj) + f(tk, tj) * f(tk, tl) - f(tk, tl) * f(tl, tj) == 0
-    check("Eq. (8.4) f_kj f_lj + f_kj f_kl - f_kl f_lj == 0", ok)
+    check("Eq. (7.4) f_kj f_lj + f_kj f_kl - f_kl f_lj == 0", ok)
 
-    # Eq. (8.2) and Eq. (8.5): gradient condition and the logarithmic potential.
+    # Eq. (7.2) and Eq. (7.5): gradient condition and the logarithmic potential.
     # d/d(tau_k) of sum_{i<j} ln(tau_i - tau_j) S_ij, collected pairwise.
     ok_grad, ok_pot = True, True
     for N in (3, 4, 5):
@@ -1354,8 +1359,8 @@ def check_section8_gaudin():
                 # only the j=k term of H^G_l depends on tau_k; d/dtau_k [1/(tau_l-tau_k)]
                 # = 1/(tau_l-tau_k)^2, symmetric in k<->l
                 ok_grad &= True
-    check("Eq. (8.5) Phi^G = sum_{i<j} ln(tau_i-tau_j) s_i.s_j has grad = H^G_k", ok_pot)
-    check("Eq. (8.2) d_k H^G_l = s_k.s_l/(tau_l-tau_k)^2 is symmetric in k<->l", ok_grad)
+    check("Eq. (7.5) Phi^G = sum_{i<j} ln(tau_i-tau_j) s_i.s_j has grad = H^G_k", ok_pot)
+    check("Eq. (7.2) d_k H^G_l = s_k.s_l/(tau_l-tau_k)^2 is symmetric in k<->l", ok_grad)
 
 
 def _msum(n, mats):

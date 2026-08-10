@@ -2,7 +2,7 @@
 """Test whether the closed-form family extends to more flows than N (sites).
 
 Builds an (n_flows)-row table from the arbitrary-N closed formula
-(Table 6 / Eq. (A.16) of the draft) on n_sites Majorana sites, then runs the
+(Table 3 / Eq. (4.21) of the paper) on n_sites Majorana sites, then runs the
 full exact integrability check. n_flows = n_sites reproduces the verified
 family; n_flows = n_sites + 1 is the candidate (N+1)-st Hamiltonian.
 """
