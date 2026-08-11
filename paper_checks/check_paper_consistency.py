@@ -936,8 +936,8 @@ def check_section7():
         ok = (col[0] - e_r(alg, N, 1)).is_zero and (col[1] - D0(alg)).is_zero
         for mu in range(3, N + 2):
             ok &= (col[mu - 1] - e_r(alg, N, mu - 1).scale((-1) ** mu)).is_zero
-        check(f"N={N}: Theorem 6.1 t-column == e_1, D_0, -e_2, e_3, ..., (-1)^(N+1) e_N", ok)
-        check(f"N={N}: Theorem 6.1 last t-column entry sign is (-1)^(N+1) (errata item V4)",
+        check(f"N={N}: Conjecture 6.1 t-column == e_1, D_0, -e_2, e_3, ..., (-1)^(N+1) e_N", ok)
+        check(f"N={N}: Conjecture 6.1 last t-column entry sign is (-1)^(N+1) (errata item V4)",
               (M[N][0] - e_r(alg, N, N).scale((-1) ** (N + 1))).is_zero)
 
         # Theorem 7.4: the column-by-column duality (nu = 1..N+1 and the constant column)

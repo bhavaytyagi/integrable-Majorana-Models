@@ -86,13 +86,20 @@ derivations were moved out of the body: the main text carries the statements
 | Linearization of `e_a(A) e_b(A)` in `C[A]/(A_j^2 - beta_j^2)`; the three-term recursion; the reflection identity `E(z)E(-z) = prod_j(1 - beta_j^2 z^2)` | §5, Prop. 5.1, Eqs. (5.5)–(5.8) | `paper_checks/check_paper_consistency.py` |
 | The kernel identity `(z+w) sum K z^a w^b = E(z)E(w) - prod_j(1+beta_j^2 zw)` | Appendix E, Eq. (E.1) | `paper_checks/check_paper_consistency.py` |
 | All integrability conditions for the stored `N=3,4,5` families, and the projection of the closed form onto them | §3, Eqs. (3.12)–(3.15) | `algebra_checks/commutator_tests.py`, `HamFam_Resources/python/verify_n{3,4,5}_majorana.py` |
-| Existence of the `(N+1)`-st commuting flow: `(N, flows) = (2,3), (3,4), (4,5)` all pass | §6.1, Thm. 6.1, Eq. (6.1) | `paper_checks/extension_test.py` |
+| Existence of the `(N+1)`-st commuting flow: `(N, flows) = (2,3), (3,4), (4,5)` all pass | §6.1, Conj. 6.1, Eq. (6.1) | `paper_checks/extension_test.py` |
 | Termination of the hierarchy: at `(2,4)` and `(3,5)`, row `N+2` reduces to the single entry `B_{N+2,2} = (-1)^N X` and row `N+3` vanishes identically | §6.3, Thm. 6.6 | `paper_checks/extension_test.py` |
 | `X = A_1...A_N D_0` is central with `X^2 = prod_j beta_j^2`; the column-by-column parity duality `B_{N+1,nu} = (-1)^{N-1} X B_{2 nu}` for `N=2,3,4` | §6.2, Thm. 6.3, Eqs. (6.3)–(6.5) | `paper_checks/duality_and_gf_test.py`, `paper_checks/check_paper_consistency.py` |
 | The chirality identity `X = kappa_N (prod_j beta_j) Gamma` with `kappa_N = 1` for odd `N` and `i` for even `N`, and `Gamma^2 = (-1)^{N+1}` (measured directly for `N = 1..6`) | Appendix F, Eqs. (F.1)–(F.2) | `paper_checks/check_paper_consistency.py` |
 | The worked `N=2` extended hierarchy and its column-by-column duality | Appendix F.1, Eqs. (F.3)–(F.4) | `paper_checks/check_paper_consistency.py` |
 | Uniqueness evidence: the structured linear solves are full rank with zero nullity and no inconsistency (`N=3`: rank 13/13; `N=4` fourth flow: rank 448/448; `N=5`: rank 10/10) | §6.4, Cor. 6.7 | `algebra_checks/uniqueness_checks.py`, `HamFam_Resources/python/solve_n{3,4,5}_*.py` |
 | The Gaudin comparison: gradient condition, commutativity via the three-point partial-fraction identity, and the logarithmic potential | §7, Eqs. (7.1)–(7.5) | `paper_checks/check_paper_consistency.py` |
+
+**On the arbitrary-`N` claim.** The existence of the `(N+1)`-st flow is stated in the paper as a
+*conjecture*, not a theorem: Appendix A reconstructs the closed-form ansatz and shows its subset
+combinatorics is stable under `N -> N+1`, but it does not verify the integrability conditions at
+general `N`. What this repository establishes is exact verification at finite `N` (`N = 2,3,4` for
+the extended family, `N = 3,4,5` for the base family). Do not describe these checks as a proof for
+all `N`.
 
 One check has **no counterpart in the paper**: the Krawtchouk evaluation
 `e_r|_k = beta^r K_r(k;N)`. The named-polynomial discussion was cut from the
