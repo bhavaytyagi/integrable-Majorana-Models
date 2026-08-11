@@ -94,6 +94,15 @@ derivations were moved out of the body: the main text carries the statements
 | Uniqueness evidence: the structured linear solves are full rank with zero nullity and no inconsistency (`N=3`: rank 13/13; `N=4` fourth flow: rank 448/448; `N=5`: rank 10/10) | §6.4, Cor. 6.7 | `algebra_checks/uniqueness_checks.py`, `HamFam_Resources/python/solve_n{3,4,5}_*.py` |
 | The Gaudin comparison: gradient condition, commutativity via the three-point partial-fraction identity, and the logarithmic potential | §7, Eqs. (7.1)–(7.5) | `paper_checks/check_paper_consistency.py` |
 
+**A check that could not fail has been removed.** The Gaudin gradient condition
+was previously "verified" by `ok_grad &= True`, which tested nothing. It is now
+derived from the Gaudin matrices themselves: the exact rational difference
+quotient of `H^G_l` is multiplied by `(tau_l-tau_k-h)(tau_l-tau_k)` and required
+to reproduce `s_l.s_k` exactly for several nonzero rational `h`, which pins the
+derivative without assuming it; only then are the two index orders compared.
+Confirmed to fail under three deliberate mutations (difference-quotient sign,
+wrong power, flipped sign in the second derivative).
+
 **On the arbitrary-`N` claim.** The existence of the `(N+1)`-st flow is stated in the paper as a
 *conjecture*, not a theorem: Appendix A reconstructs the closed-form ansatz and shows its subset
 combinatorics is stable under `N -> N+1`, but it does not verify the integrability conditions at

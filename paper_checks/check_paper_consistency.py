@@ -827,6 +827,18 @@ def check_section6():
                 ok &= (lhs - rhs).is_zero
         check(f"N={N}: Eq. (5.7) K_(a-1,b) + K_(a,b-1) = e_a e_b - delta_ab e_a(beta^2)", ok)
 
+        # Boundary conventions. The recursion is stated for all a,b >= 0, so it
+        # silently relies on K_(-1,b) = K_(a,-1) = 0. Pin both, and pin the
+        # N=2 edge case where index 2 is the exceptional row and 1N collides
+        # with the row-2 entry.
+        ok_bd = all(K_paper(alg, N, -1, b).is_zero for b in range(0, N + 2)) and \
+                all(K_paper(alg, N, a, -1).is_zero for a in range(0, N + 2))
+        check(f"N={N}: boundary convention K_(-1,b) == K_(a,-1) == 0", ok_bd)
+
+        # first column is e_{a+1}, which must vanish once a+1 > N
+        ok_top = all(K_paper(alg, N, a, 0).is_zero for a in range(N, N + 3))
+        check(f"N={N}: K_(a,0) == e_(a+1) vanishes for a >= N", ok_top)
+
         # Eq. (E.1): the kernel identity
         G = alg.zero()
         for a in range(0, N + 1):
@@ -1336,7 +1348,7 @@ def check_section8_gaudin():
 
     # Eq. (7.2) and Eq. (7.5): gradient condition and the logarithmic potential.
     # d/d(tau_k) of sum_{i<j} ln(tau_i - tau_j) S_ij, collected pairwise.
-    ok_grad, ok_pot = True, True
+    ok_grad, ok_pot, ok_quot = True, True, True
     for N in (3, 4, 5):
         for k in range(1, N + 1):
             # potential derivative: pair (i,j) contributes only for k in {i,j}
@@ -1353,14 +1365,45 @@ def check_section8_gaudin():
                     continue
                 want[(min(k, j), max(k, j))] = 1 if k < j else -1
             ok_pot &= got == want
+    # The gradient condition is verified by DERIVING each partial derivative
+    # from the Gaudin matrices, not by asserting the closed form. For
+    # f(x)=1/(y-x) the exact difference quotient is 1/((y-x-h)(y-x)), so the
+    # quotient matrix times (y-x-h)(y-x) must reproduce dot(l,k) exactly for
+    # every nonzero rational h. That pins d_k H^G_l = dot(l,k)/(tau_l-tau_k)^2
+    # without assuming it; only then are the two index orders compared.
+    for N in (3, 4):
+        n = 2 ** N
+        sx = [None] + [site_op(N, j, _SX) for j in range(1, N + 1)]
+        sy = [None] + [site_op(N, j, _SY) for j in range(1, N + 1)]
+        sz = [None] + [site_op(N, j, _SZ) for j in range(1, N + 1)]
+        dot = lambda i, j: sx[i] * sx[j] + sy[i] * sy[j] + sz[i] * sz[j]
+        base = [None] + [Fraction(v) for v in (1, 5, -2, 7, 11)[:N]]
+
+        def HG(tt, m):
+            return _msum(n, [dot(m, j).scale((Fraction(1) / (tt[m] - tt[j]),
+                                              Fraction(0)))
+                             for j in range(1, N + 1) if j != m])
+
+        for k in range(1, N + 1):
             for l in range(1, N + 1):
                 if l == k:
                     continue
-                # only the j=k term of H^G_l depends on tau_k; d/dtau_k [1/(tau_l-tau_k)]
-                # = 1/(tau_l-tau_k)^2, symmetric in k<->l
-                ok_grad &= True
+                d = base[l] - base[k]
+                for h in (Fraction(1, 3), Fraction(-1, 7), Fraction(2, 5)):
+                    tt = list(base)
+                    tt[k] = base[k] + h
+                    quot = (HG(tt, l) - HG(base, l)).scale(
+                        (Fraction(1) / h, Fraction(0)))
+                    resid = quot.scale(((d - h) * d, Fraction(0))) - dot(l, k)
+                    ok_quot &= resid.is_zero
+                # derivative pinned above, now compare the two index orders
+                dkl = dot(l, k).scale((Fraction(1) / (d * d), Fraction(0)))
+                e = base[k] - base[l]
+                dlk = dot(k, l).scale((Fraction(1) / (e * e), Fraction(0)))
+                ok_grad &= (dkl - dlk).is_zero
     check("Eq. (7.5) Phi^G = sum_{i<j} ln(tau_i-tau_j) s_i.s_j has grad = H^G_k", ok_pot)
-    check("Eq. (7.2) d_k H^G_l = s_k.s_l/(tau_l-tau_k)^2 is symmetric in k<->l", ok_grad)
+    check("Eq. (7.2) difference quotient of H^G_l pins d_k H^G_l = s_l.s_k/(tau_l-tau_k)^2", ok_quot)
+    check("Eq. (7.2) d_k H^G_l == d_l H^G_k (gradient/closedness condition)", ok_grad)
 
 
 def _msum(n, mats):
