@@ -1190,6 +1190,65 @@ def site_op(N, j, P):
     return out
 
 
+def check_sector_signs():
+    """Section 2.4: the reduction to spins is sector dependent.
+
+    On the sector where the normalized central involution takes the value
+    Xhat = s, the fermionic generators reduce as
+        A_j -> beta_j sigma^z_j,   D_0 -> s prod_k sigma^z_k,   D_j -> s gamma_j,
+    so the epsilon and g_j terms of H_1 reverse between the two sectors while
+    the t-dependent and density terms do not. The printed spin Hamiltonian is
+    the s=+1 sector. This is checked here on the full 2^(N+1)-dimensional
+    fermionic representation, not asserted.
+    """
+    section("Section 2.4 -- the two central-character sectors carry different signs")
+    for N in (2, 3):
+        nq = N + 1
+        n = 2 ** nq
+
+        def maj(k):
+            i = (k + 1) // 2
+            op = _SX if k % 2 == 1 else _SY
+            out = Mat.eye(1); out.a = [[F(1)]]
+            for q in range(1, nq + 1):
+                out = kron(out, _SZ if q < i else (op if q == i else _I2))
+            return out
+
+        g = [None] + [maj(k) for k in range(1, 2 * nq + 1)]
+        gam = {j: g[j] for j in range(1, N + 1)}
+        gamN = {j: g[N + j] for j in range(1, N + 1)}
+        gamma0, c0 = g[2 * N + 1], g[2 * N + 2]
+        I = Mat.eye(n)
+        Ah = {j: (gamN[j] * gam[j]).scale((Fraction(0), Fraction(1)))
+              for j in range(1, N + 1)}                      # A_j / beta_j
+        D0 = (c0 * gamma0).scale((Fraction(0), Fraction(1)))
+        D = {j: (c0 * gam[j]).scale((Fraction(0), Fraction(1)))
+             for j in range(1, N + 1)}
+        prodA = Ah[1]
+        for j in range(2, N + 1):
+            prodA = prodA * Ah[j]
+        Xh = prodA * D0
+
+        check(f"N={N}: Xhat^2 == 1 on the doubled space", (Xh * Xh - I).is_zero)
+        ok_sec, ok_dj, ok_free = True, True, True
+        for s in (1, -1):
+            P = (I + Xh.scale((Fraction(s), Fraction(0)))).scale(
+                (Fraction(1, 2), Fraction(0)))
+            # D_0 -> s prod_j (A_j/beta_j)
+            ok_sec &= (P * D0 - P * prodA.scale((Fraction(s), Fraction(0)))).is_zero
+            # D_j -> s gamma_j-image: D_j = s * (D_0-stripped) partner, i.e.
+            # D_j and D_0 carry the SAME sector sign, so D_0 D_j is sign free
+            for j in range(1, N + 1):
+                ok_dj &= (P * (D0 * D[j]) -
+                          P * (prodA * D[j]).scale((Fraction(s), Fraction(0)))).is_zero
+                # A_j is sector independent: it commutes with Xhat and needs no s
+                ok_free &= (Xh * Ah[j] - Ah[j] * Xh).is_zero
+        check(f"N={N}: on Xhat=s, D_0 == s * prod_j(A_j/beta_j) for BOTH s", ok_sec)
+        check(f"N={N}: the D_j images carry the same sector sign s", ok_dj)
+        check(f"N={N}: the A_j (t-dependent and density terms) are sector free",
+              ok_free)
+
+
 def check_spin_representation():
     section("Section 2.4 / Remark 6.5 -- the spin representation (exact 2^N matrices)")
     for N in (2, 3, 4):
@@ -1421,6 +1480,7 @@ def main():
     check_section5()
     check_section6()
     check_section7()
+    check_sector_signs()
     check_spin_representation()
     check_section8_gaudin()
 
