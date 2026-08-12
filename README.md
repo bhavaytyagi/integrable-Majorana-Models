@@ -21,6 +21,15 @@ either compares against a closed form, an independently derived reference, or an
 invariant that must hold identically — "it ran without an exception" is never
 treated as a pass.
 
+## Reproducing every check
+
+```sh
+./run_all_checks.sh
+```
+
+Runs the whole suite in order and exits nonzero on any failure. Tested on
+Python 3.12; requires 3.9+.
+
 ## Requirements
 
 Python 3.9+. **No third-party dependencies** — the Clifford arithmetic is

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: >-
+  Exact verification code for "Integrable Majorana Hub Hamiltonians"
+message: >-
+  If you use this software, please cite both the software and the
+  accompanying paper.
+type: software
+authors:
+  # TODO(BT,NS): replace with full names, ORCIDs and affiliations.
+  - given-names: B.
+    family-names: T.
+  - given-names: N.
+    family-names: S.
+repository-code: https://github.com/bhavaytyagi/integrable-Majorana-Models
+license: MIT
+abstract: >-
+  Dependency-free exact Clifford-algebra verification of the algebraic
+  claims in "Integrable Majorana Hub Hamiltonians". All checks are exact
+  over the rationals at finite N; no arbitrary-N statement is machine
+  proved.
