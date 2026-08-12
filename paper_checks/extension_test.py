@@ -130,6 +130,13 @@ def run(n_sites: int, n_flows: int, show_entries=False, show_failures=8):
 
 
 if __name__ == "__main__":
+    import os
+    # The N=6 cases take about 3 minutes together, so they are opt in:
+    #     HAMFAM_SLOW=1 python3 extension_test.py
+    # They are the largest sizes at which the closed form has been checked and
+    # are the current evidence base for Conjecture 6.1, so do not drop them.
+    SLOW = os.environ.get("HAMFAM_SLOW") == "1"
+
     # Controls: must PASS (reproduce verified families)
     run(2, 2)
     run(3, 3)
@@ -137,6 +144,10 @@ if __name__ == "__main__":
     run(2, 3, show_entries=True)
     run(3, 4, show_entries=True)
     run(4, 5)
+    if SLOW:
+        run(6, 6)   # base N-flow family at N=6      (~75 s)
+        run(6, 7)   # extended (N+1)-flow family     (~95 s)
+
     # Beyond: N+2 flows
     run(2, 4, show_entries=True)
     run(3, 5, show_entries=True)
